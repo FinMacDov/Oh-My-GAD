@@ -96,45 +96,37 @@ while not game_over:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        if turn == 0:
-          if event.type == pygame.MOUSEMOTION:
-              pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-              pos_x = event.pos[0]
-              pygame.draw.circle(screen, RED, (pos_x, int(SQUARESIZE/2)), RADIUS)
-          pygame.display.update()
-    # ask for player 2 input the bot
-        else:
-          random_placer = randint(0, NB_COL-1)
-          pos_x = random_placer*SQUARESIZE
-          col = int(math.floor(pos_x/SQUARESIZE))
-          # checks to see if valid location
-          if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
-            if winning_move(board, 2):
-              label = myfont.render('player 2 wins!', 1, YELLOW)
-              screen.blit(label, (40, 10))
-              game_over = True
-            pygame.draw.circle(screen, YELLOW, (pos_x, int(SQUARESIZE/2)), RADIUS)
-            pygame.display.update()
+        # For drawing the peices on above board
+        if event.type == pygame.MOUSEMOTION:
+            pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
+            pos_x = event.pos[0]
+            if turn == 0:
+                pygame.draw.circle(screen, RED, (pos_x, int(SQUARESIZE/2)), RADIUS)
 
+        pygame.display.update()
         if event.type == pygame.MOUSEBUTTONDOWN:
             pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-            if turn is 0:
-                pos_x = event.pos[0]
+            pos_x = event.pos[0]
+            col = int(math.floor(pos_x/SQUARESIZE))
+            if is_valid_location(board, col):
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, 1)
+                # Adds winning condition
+                if winning_move(board, 1):
+                    label = myfont.render('player 1 wins!', 1, RED)
+                    screen.blit(label, (40, 10))
+                    game_over = True
+            # ask for player 2 (bot) input
+                random_placer = randint(0, NB_COL-1)
+                pos_x = random_placer*SQUARESIZE
                 col = int(math.floor(pos_x/SQUARESIZE))
                 if is_valid_location(board, col):
                     row = get_next_open_row(board, col)
-                    drop_piece(board, row, col, 1)
-                    # Adds winning condition
-                    if winning_move(board, 1):
-                        label = myfont.render('player 1 wins!', 1, RED)
+                    drop_piece(board, row, col, 2)
+                    if winning_move(board, 2):
+                        label = myfont.render('player 2 wins!', 1, YELLOW)
                         screen.blit(label, (40, 10))
                         game_over = True
-
-            turn += 1
-            print('turn,', turn)
-            turn = turn % 2  # resets turn to zero to allow player 1 to go
             draw_board(board)
 
             if game_over:
