@@ -12,6 +12,8 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
+completely_random = False
+random_w_strategy = True
 
 def make_board():
     board = np.zeros((NB_ROW, NB_COL))
@@ -37,6 +39,8 @@ def print_board(board):
 
 
 def winning_move(baord, piece):
+    # Board - check the current state
+    # Piece - identies the player peices 
     # Check hozizontal locations for win
     for c in range(NB_COL-3):
         for r in range(NB_ROW):
@@ -59,6 +63,31 @@ def winning_move(baord, piece):
                 return True
 
 
+def potential_winning_move(baord, piece):
+    # Board - check the current state
+    # Piece - identies the player peices 
+    # Check hozizontal locations for win
+    for c in range(NB_COL-3):
+        for r in range(NB_ROW):
+            if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece:
+                return True
+    # Check verticle locations for win
+    for c in range(NB_COL):
+        for r in range(NB_ROW-3):
+            if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece:
+                return True
+    # check for positively sloped diags
+    for c in range(NB_COL-3):
+        for r in range(NB_ROW-3):
+            if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece:
+                return True
+    # check for negitively sloped diags
+    for c in range(NB_COL-3):
+        for r in range(3,NB_ROW):
+            if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece:
+                return True
+
+
 def draw_board(board):
     for c in range(NB_COL):
         for r in range(NB_ROW):
@@ -72,7 +101,6 @@ def draw_board(board):
             elif board[r][c] == 2:
                pygame.draw.circle(screen, YELLOW, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
         pygame.display.update()
-
 
 board = make_board()
 game_over = False
@@ -117,17 +145,34 @@ while not game_over:
                     screen.blit(label, (40, 10))
                     game_over = True
             # ask for player 2 (bot) input
-                random_placer = randint(0, NB_COL-1)
-                pos_x = random_placer*SQUARESIZE
-                col = int(math.floor(pos_x/SQUARESIZE))
-                if is_valid_location(board, col):
-                    row = get_next_open_row(board, col)
-                    drop_piece(board, row, col, 2)
-                    if winning_move(board, 2):
-                        label = myfont.render('player 2 wins!', 1, YELLOW)
-                        screen.blit(label, (40, 10))
-                        game_over = True
-            draw_board(board)
+                if(completely_random) is True:
+                    random_placer = randint(0, NB_COL-1)
+                    pos_x = random_placer*SQUARESIZE
+                    col = int(math.floor(pos_x/SQUARESIZE))
+                    if is_valid_location(board, col):
+                        row = get_next_open_row(board, col)
+                        drop_piece(board, row, col, 2)
+                        if winning_move(board, 2):
+                            label = myfont.render('player 2 wins!', 1, YELLOW)
+                            screen.blit(label, (40, 10))
+                            game_over = True
+                if(random_w_strategy) is True:
+                    if winning:
+                        placer = 1
+                    else if block_winning_move:
+                        placer=2
+                    else:    
+                        placer = randint(0, NB_COL-1)
+                    pos_x = placer*SQUARESIZE
+                    col = int(math.floor(pos_x/SQUARESIZE))
+                    if is_valid_location(board, col):
+                        row = get_next_open_row(board, col)
+                        drop_piece(board, row, col, 2)
+                        if winning_move(board, 2):
+                            label = myfont.render('player 2 wins!', 1, YELLOW)
+                            screen.blit(label, (40, 10))
+                            game_over = True
+                draw_board(board)
 
             if game_over:
                 pygame.time.wait(3000)
